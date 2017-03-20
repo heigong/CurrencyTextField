@@ -15,9 +15,17 @@ import UIKit
     
     private var defaultValue: Double = 0.00
     
-    private let currencyFormattor = NSNumberFormatter()
+    private let currencyFormattor = NumberFormatter()
     
     private var previousValue : String = ""
+    
+    open var amount: NSNumber? {
+        
+        let cleanNumericString : String = getCleanNumberString()
+        let textFieldNumber = Double(cleanNumericString) ?? 0
+        
+        return NSNumber(value: textFieldNumber)
+    }
     
     // MARK: - init functions
     
@@ -32,20 +40,20 @@ import UIKit
     }
     
     func initTextField(){
-        self.keyboardType = UIKeyboardType.DecimalPad
-        currencyFormattor.numberStyle = .CurrencyStyle
+        self.keyboardType = UIKeyboardType.decimalPad
+        currencyFormattor.numberStyle = .currency
         currencyFormattor.minimumFractionDigits = 2
         currencyFormattor.maximumFractionDigits = 2
-        setAmount(defaultValue)
+        setAmount(amount: defaultValue)
     }
     
     // MARK: - UITextField Notifications
     
-    override public func willMoveToSuperview(newSuperview: UIView!) {
+    override public func willMove(toSuperview newSuperview: UIView!) {
         if newSuperview != nil {
-            NSNotificationCenter.defaultCenter().addObserver(self, selector: "textDidChange:", name:UITextFieldTextDidChangeNotification, object: self)
+            NotificationCenter.default.addObserver(self, selector: "textDidChange:", name:NSNotification.Name.UITextFieldTextDidChange, object: self)
         } else {
-            NSNotificationCenter.defaultCenter().removeObserver(self)
+            NotificationCenter.default.removeObserver(self)
         }
     }
     
@@ -64,19 +72,19 @@ import UIKit
             let textFieldNumber = Double(cleanNumericString)
             if let textFieldNumber = textFieldNumber{
                 let textFieldNewValue = textFieldNumber/100
-                setAmount(textFieldNewValue)
+                setAmount(amount: textFieldNewValue)
             }else{
                 self.text = previousValue
             }
         }
         //Set the cursor back to its original poistion
-        setCursorOriginalPosition(cursorOffset, oldTextFieldLength: textFieldLength)
+        setCursorOriginalPosition(cursorOffset: cursorOffset, oldTextFieldLength: textFieldLength)
     }
     
     //MARK: - Custom text field functions
     
-    func setAmount (amount : Double){
-        let textFieldStringValue = currencyFormattor.stringFromNumber(amount)
+    open func setAmount (amount : Double){
+        let textFieldStringValue = currencyFormattor.string(from: NSNumber(value: amount))
         self.text = textFieldStringValue
         if let textFieldStringValue = textFieldStringValue{
             previousValue = textFieldStringValue
@@ -91,12 +99,12 @@ import UIKit
         if let textFieldString = textFieldString{
             
             //Remove $ sign
-            var toArray = textFieldString.componentsSeparatedByString("$")
-            cleanNumericString = toArray.joinWithSeparator("")
+            var toArray = textFieldString.components(separatedBy: "$")
+            cleanNumericString = toArray.joined(separator: "")
             
             //Remove periods, commas
-            toArray = cleanNumericString.componentsSeparatedByCharactersInSet(NSCharacterSet .punctuationCharacterSet())
-            cleanNumericString = toArray.joinWithSeparator("")
+            toArray = cleanNumericString.components(separatedBy: NSCharacterSet.punctuationCharacters)
+            cleanNumericString = toArray.joined(separator: "")
         }
         
         return cleanNumericString
@@ -107,7 +115,7 @@ import UIKit
         var cursorOffset : Int = 0
         let startPosition : UITextPosition = self.beginningOfDocument
         if let selectedTextRange = self.selectedTextRange{
-            cursorOffset = self.offsetFromPosition(startPosition, toPosition: selectedTextRange.start)
+            cursorOffset = self.offset(from: startPosition, to: selectedTextRange.start)
         }
         return cursorOffset
     }
@@ -116,11 +124,11 @@ import UIKit
         
         let newLength = self.text?.characters.count
         let startPosition : UITextPosition = self.beginningOfDocument
-        if let oldTextFieldLength = oldTextFieldLength, newLength = newLength where oldTextFieldLength > cursorOffset{
+        if let oldTextFieldLength = oldTextFieldLength, let newLength = newLength, oldTextFieldLength > cursorOffset{
             let newOffset = newLength - oldTextFieldLength + cursorOffset
-            let newCursorPosition = self.positionFromPosition(startPosition, offset: newOffset)
+            let newCursorPosition = self.position(from: startPosition, offset: newOffset)
             if let newCursorPosition = newCursorPosition{
-                let newSelectedRange = self.textRangeFromPosition(newCursorPosition, toPosition: newCursorPosition)
+                let newSelectedRange = self.textRange(from:newCursorPosition, to: newCursorPosition)
                 self.selectedTextRange = newSelectedRange
             }
             
