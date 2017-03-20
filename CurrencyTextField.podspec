@@ -13,7 +13,7 @@ Pod::Spec.new do |s|
 
   s.platform     = :ios, "8.0"
 
-  s.source       = { :git => "https://github.com/richa008/CurrencyTextField.git", :tag => s.version.to_s }
+  s.source       = { :git => "https://github.com/heigong/CurrencyTextField.git", :branch => 'master' }
 
   s.source_files  = "CurrencyTextField/*.swift"
 
