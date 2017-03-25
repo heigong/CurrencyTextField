@@ -51,7 +51,7 @@ import UIKit
     
     override public func willMove(toSuperview newSuperview: UIView!) {
         if newSuperview != nil {
-            NotificationCenter.default.addObserver(self, selector: "textDidChange:", name:NSNotification.Name.UITextFieldTextDidChange, object: self)
+            NotificationCenter.default.addObserver(self, selector: #selector(CurrencyTextField.textDidChange(notification:)), name:NSNotification.Name.UITextFieldTextDidChange, object: self)
         } else {
             NotificationCenter.default.removeObserver(self)
         }
