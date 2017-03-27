@@ -19,12 +19,10 @@ import UIKit
     
     private var previousValue : String = ""
     
+    private var _amount: Double = 0
     open var amount: NSNumber? {
         
-        let cleanNumericString : String = getCleanNumberString()
-        let textFieldNumber = Double(cleanNumericString) ?? 0
-        
-        return NSNumber(value: textFieldNumber)
+        return NSNumber(value: _amount)
     }
     
     // MARK: - init functions
@@ -84,6 +82,9 @@ import UIKit
     //MARK: - Custom text field functions
     
     open func setAmount (amount : Double){
+        
+        _amount = amount
+        
         let textFieldStringValue = currencyFormattor.string(from: NSNumber(value: amount))
         self.text = textFieldStringValue
         if let textFieldStringValue = textFieldStringValue{
